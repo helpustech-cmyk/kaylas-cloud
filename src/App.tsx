@@ -1,11 +1,46 @@
+import { useState } from 'react'
 import { MatrixRain } from './components/MatrixRain'
-import { AIAvatar } from './components/AIAvatar'
-import { ChatConsole } from './components/ChatConsole'
-import { useSpeech } from './hooks/useSpeech'
+import { FloatingAvatarWidget } from './components/FloatingAvatarWidget'
+import { ResumeTab } from './components/tabs/ResumeTab'
+import { PlaceholderTab } from './components/tabs/PlaceholderTab'
 import './App.css'
 
+const TABS = [
+  { id: 'resume', label: 'Resume' },
+  { id: 'research', label: 'Research' },
+  { id: 'knowledge', label: 'Knowledge' },
+  { id: 'repos', label: 'Repos' },
+  { id: 'training', label: 'Training' },
+  { id: 'social', label: 'Social' },
+] as const
+
+type TabId = (typeof TABS)[number]['id']
+
+const PLACEHOLDER_COPY: Record<Exclude<TabId, 'resume'>, { title: string; description: string }> = {
+  research: {
+    title: 'Research Lab & YouTube',
+    description: 'Research papers and video breakdowns on AI-driven customer experience — coming soon.',
+  },
+  knowledge: {
+    title: 'AI Knowledge Hub',
+    description: 'A growing library of approved research and writing on Service + AI — coming soon.',
+  },
+  repos: {
+    title: 'Automation Repos',
+    description: 'Links to automation projects and tools on GitHub/Hugging Face — coming soon.',
+  },
+  training: {
+    title: 'Service Leaders Training',
+    description: 'Training videos and frameworks for frontline and service leadership — coming soon.',
+  },
+  social: {
+    title: 'Social Media Wall',
+    description: 'A unified feed of LinkedIn, X, and Telegram posts — coming soon.',
+  },
+}
+
 function App() {
-  const { speak, isSpeaking, mouthLevel } = useSpeech()
+  const [activeTab, setActiveTab] = useState<TabId>('resume')
 
   return (
     <div className="shell">
@@ -14,8 +49,14 @@ function App() {
       <header className="topbar">
         <div className="logo">KAYLAS<span>.CLOUD</span></div>
         <nav className="tabs">
-          {['Resume', 'Research', 'Knowledge', 'Repos', 'Training', 'Social'].map((tab) => (
-            <button key={tab} className="tab">{tab}</button>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tab ${activeTab === tab.id ? 'tab--active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
           ))}
         </nav>
       </header>
@@ -31,10 +72,15 @@ function App() {
         </aside>
 
         <section className="stage">
-          <AIAvatar isSpeaking={isSpeaking} mouthLevel={mouthLevel} />
-          <ChatConsole onSpeak={speak} />
+          {activeTab === 'resume' ? (
+            <ResumeTab />
+          ) : (
+            <PlaceholderTab {...PLACEHOLDER_COPY[activeTab]} />
+          )}
         </section>
       </main>
+
+      <FloatingAvatarWidget />
     </div>
   )
 }

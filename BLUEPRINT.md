@@ -42,9 +42,9 @@ is preserved in `docs/ORIGINAL_BLUEPRINT.md`.
 |---|---|---|
 | 0 | Local MVP scaffold: matrix rain, AI avatar (SVG, lip-sync via speech boundary events), chat console, local retrieval, Web Speech TTS | ✅ Done — verified in headless browser, no console errors |
 | 1 | VPS recon (SSH, Docker, DNS check) | Not started — needs user to provide an SSH public key setup |
-| 2 | Real RAG: vector DB (ChromaDB) + OpenAI embeddings, ingest real CV PDF | Not started — needs actual resume PDF content and an OpenAI API key |
-| 3 | Full 20/20/60 layout polish, 3D parallax, loading screen, cursor/ripple effects | Partial — basic layout exists (topbar + side panel + stage), no parallax/loader/cursor yet |
-| 4 | 7 public tabs (Resume, Research, Knowledge Hub, Repos, Training, Social Wall, Admin) | Not started — nav tabs are placeholders, no content/routing yet |
+| 2 | Real RAG: vector DB (ChromaDB) + OpenAI embeddings | Not started — real CV content is now in the knowledge base (keyword retrieval), still needs an OpenAI API key to upgrade to embeddings |
+| 3 | Full 20/20/60 layout polish, 3D parallax, loading screen, cursor/ripple effects | Partial — tab navigation + floating avatar widget done, no parallax/loader/cursor yet |
+| 4 | 7 public tabs (Resume, Research, Knowledge Hub, Repos, Training, Social Wall, Admin) | Partial — tab switching works; Resume tab has real CV content (accordion of jobs, education, certifications, achievements, skills); Research/Knowledge/Repos/Training/Social are styled placeholders; Admin not started |
 | 5 | Lead-gen modal + WhatsApp/Calendar automation | Not started — needs WhatsApp Business API / Twilio + Google Calendar API keys |
 | 6 | Hostinger affiliate tracking | Not started |
 | 7 | Admin productivity OS (POA generator, OKR tracker, reports, reminders) | Not started — needs DB choice confirmed and an LLM API key |
