@@ -72,14 +72,13 @@ Run locally: `npm install && npm run dev` (Vite, default port 5173).
 
 ## Immediate next step (as of 2026-07-05)
 
-Deploying the current build to a free host (Vercel — user's choice, to get
-something live at a temporary URL before the Hostinger VPS is wired up).
-**Blocked on**: user running `npx vercel login` themselves in their own
-terminal session (so the auth token never enters chat/session text). Once
-they confirm login is done, the next action is: `cd /root/kaylas-cloud &&
-npx vercel` (or `vercel --prod`) to build and deploy, then report the
-live URL back to the user. kaylas.cloud DNS cutover is a separate later
-step once the user is happy with the Vercel preview.
+Deployed. User ran `npx vercel login` in their own terminal (Vercel account:
+`helpustech-1561`). Project linked as `helpustech/kaylas-cloud` and deployed
+at commit `121db01`. Live URL: **https://kaylas-cloud.vercel.app** (Vercel
+auto-aliased this as the project's first deployment — it's still just the
+free Vercel domain, not the real `kaylas.cloud` domain). Next: user reviews
+the live site, then decide on kaylas.cloud DNS cutover (separate later step)
+and/or continue with Phase 1 (VPS recon) once ready.
 
 ## Open questions blocking later phases
 
