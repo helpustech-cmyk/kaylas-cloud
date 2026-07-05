@@ -61,11 +61,25 @@ kaylas-cloud/
     components/ChatConsole.tsx   — chat log + input, calls retrieval + TTS
     hooks/useSpeech.ts           — Web Speech API wrapper, exposes isSpeaking/mouthLevel
     lib/retrieval.ts             — keyword-overlap answer(query) over knowledge.ts
-    data/knowledge.ts            — MVP knowledge base (placeholder bio content)
+    data/knowledge.ts            — knowledge base (real CV content, see docs/CV_SOURCE.md)
+    data/resume.ts               — structured CV data feeding the Resume tab UI
+    components/tabs/             — ResumeTab (real content) + PlaceholderTab (Research/Knowledge/Repos/Training/Social)
+    components/FloatingAvatarWidget.tsx — bottom-right persistent chat widget
     App.tsx / App.css            — layout + neon/matrix styling
 ```
 
 Run locally: `npm install && npm run dev` (Vite, default port 5173).
+
+## Immediate next step (as of 2026-07-05)
+
+Deploying the current build to a free host (Vercel — user's choice, to get
+something live at a temporary URL before the Hostinger VPS is wired up).
+**Blocked on**: user running `npx vercel login` themselves in their own
+terminal session (so the auth token never enters chat/session text). Once
+they confirm login is done, the next action is: `cd /root/kaylas-cloud &&
+npx vercel` (or `vercel --prod`) to build and deploy, then report the
+live URL back to the user. kaylas.cloud DNS cutover is a separate later
+step once the user is happy with the Vercel preview.
 
 ## Open questions blocking later phases
 
