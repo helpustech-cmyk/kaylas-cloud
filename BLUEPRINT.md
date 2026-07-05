@@ -23,6 +23,10 @@ is preserved in `docs/ORIGINAL_BLUEPRINT.md`.
 - **Starting point**: local scaffold first, deploy to the real Hostinger VPS
   only once the avatar + chat MVP works locally.
 - **Codebase**: fresh repo at `/root/kaylas-cloud` (this directory).
+- **Current role/employer**: Digital Revenue Lead at **Quick Heal** (not
+  "Quack Heal" — that spelling in the original brief was a typo), since
+  September 2025. Prior role was Head Customer Service at Parag Milk Foods
+  Limited (Dec 2024–Sept 2025). Full career history in `docs/CV_SOURCE.md`.
 - **TTS (current phase)**: Web Speech API (free, browser-native). ElevenLabs
   is a planned upgrade once the user sets up a paid account — swap happens
   inside `src/hooks/useSpeech.ts` only.
@@ -65,7 +69,8 @@ Run locally: `npm install && npm run dev` (Vite, default port 5173).
 
 ## Open questions blocking later phases
 
-- Real CV/resume PDF content (for the real knowledge base / RAG ingestion)
+- ~~Real CV/resume PDF content~~ — done, see `docs/CV_SOURCE.md` and
+  `src/data/knowledge.ts`
 - OpenAI API key (embeddings) — only needed for Phase 2
 - ElevenLabs account — only needed to upgrade TTS quality
 - WhatsApp Business/Twilio, YouTube, LinkedIn, Twitter/X API keys — only
