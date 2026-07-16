@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { answer } from '../lib/retrieval'
+import { resolveNavIntent, type TabId } from '../lib/navigation'
 
 interface LogLine {
   id: number
@@ -9,15 +10,16 @@ interface LogLine {
 
 interface ChatConsoleProps {
   onSpeak: (text: string) => void
+  onNavigate?: (tabId: TabId) => void
 }
 
-export function ChatConsole({ onSpeak }: ChatConsoleProps) {
+export function ChatConsole({ onSpeak, onNavigate }: ChatConsoleProps) {
   const [input, setInput] = useState('')
   const [log, setLog] = useState<LogLine[]>([
     {
       id: 0,
       role: 'ai',
-      text: "Hi, I'm Kailas's AI twin. Ask me about my role, AI expertise, or how to connect.",
+      text: "Hi, I'm Kailas's AI twin. Ask me about my role, AI expertise, or how to connect — or say 'open resume' to navigate.",
     },
   ])
 
@@ -26,13 +28,16 @@ export function ChatConsole({ onSpeak }: ChatConsoleProps) {
     const text = input.trim()
     if (!text) return
 
-    const reply = answer(text)
+    const navTab = resolveNavIntent(text)
+    const reply = navTab ? `Opening ${navTab} for you.` : answer(text)
+
     setLog((prev) => [
       ...prev,
       { id: prev.length, role: 'user', text },
       { id: prev.length + 1, role: 'ai', text: reply },
     ])
     onSpeak(reply)
+    if (navTab && onNavigate) onNavigate(navTab)
     setInput('')
   }
 

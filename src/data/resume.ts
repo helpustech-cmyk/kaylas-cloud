@@ -6,6 +6,22 @@ export interface ResumeJob {
   bullets: string[]
 }
 
+export const profile = {
+  name: 'Kailas Sadanand Swami',
+  title: 'Digital Revenue Lead',
+  company: 'Quick Heal',
+  location: 'Nerul, Navi Mumbai',
+  phone: '+91 9372133356',
+  email: 'kailashjd@outlook.com',
+  linkedin: 'https://www.linkedin.com/in/kailash-swami-66a68015a',
+}
+
+export const stats = [
+  { value: '14+', label: 'Years Experience' },
+  { value: '165+', label: 'Team Led' },
+  { value: '96%', label: 'Service Level' },
+]
+
 export const summary =
   "MBA with 14+ years in the service industry. Led call center teams of 130-165+ service experts plus 8+ vendors, working across IVR, email bots, speech analytics, and CRM development to turn service centers into profitable, compliant, customer-first operations."
 
@@ -116,4 +132,32 @@ export const skills = [
   'Call Centre Technology', 'CRM Development', 'Cross-selling Strategies', 'Customer Journey Mapping',
   'Retention Strategy', 'Revenue Growth', 'Process Optimization', 'BRD Development',
   'Data Analytics & Automation', 'Power BI', 'Excel', 'PMP', 'SSGB',
+]
+
+export interface ResumeProject {
+  name: string
+  dates: string
+  description: string
+}
+
+export const projects: ResumeProject[] = [
+  {
+    name: 'IVR Revamp — Multilingual',
+    dates: 'Mar 2024 - Jun 2024',
+    description: 'Rebuilt the IVR flow across multiple languages to cut misroutes and reduce call handling time.',
+  },
+  {
+    name: 'Product Catalog Revitalization + 360° CRM Change',
+    dates: 'Nov 2023 - Mar 2024',
+    description: '38+ projects spanning CRM, CRM journeys, CRM integration, and reporting.',
+  },
+  {
+    name: 'NPS, Ebots & Speech Analytics',
+    dates: 'Ongoing',
+    description: 'Continuous rollout of NPS tracking, email-bot automation, and speech analytics tooling.',
+  },
+]
+
+export const hobbies = [
+  'Writing', 'Reading', 'Trekking', 'Yoga', 'Teaching', 'Travelling', 'Movies', 'Meditation', 'Practicing Spirituality',
 ]

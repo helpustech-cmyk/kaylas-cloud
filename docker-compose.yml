@@ -1,0 +1,85 @@
+services:
+  # ─── Main Website (existing Vite build) ───────────────────────────
+  kaylas-cloud:
+    build: .
+    container_name: kaylas-cloud
+    restart: unless-stopped
+    expose:
+      - 80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kaylas-cloud.rule=Host(`kaylas.cloud`) || Host(`www.kaylas.cloud`)
+      - traefik.http.routers.kaylas-cloud.entrypoints=websecure
+      - traefik.http.routers.kaylas-cloud.tls.certresolver=letsencrypt
+      - traefik.http.routers.kaylas-cloud.tls.domains[0].main=kaylas.cloud
+      - traefik.http.routers.kaylas-cloud.service=kaylas-cloud
+      - traefik.http.services.kaylas-cloud.loadbalancer.server.port=80
+
+  # ─── Backend API (FastAPI) ────────────────────────────────────────
+  api:
+    build: ./backend
+    container_name: kaylas-api
+    restart: unless-stopped
+    expose:
+      - 8000
+    environment:
+      - DATABASE_URL=postgresql://kaylas:kaylas@postgres:5432/kaylas_cloud
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2
+      - EMBED_MODEL=nomic-embed-text
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-8b-instant}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - CORS_ORIGINS=https://kaylas.cloud,https://www.kaylas.cloud,http://localhost:5173,http://localhost:3000
+    networks:
+      - traefik-public
+      - backend
+    depends_on:
+      - postgres
+      - ollama
+    labels:
+      - traefik.enable=false
+
+  # ─── PostgreSQL + pgvector ───────────────────────────────────────
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: kaylas-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=kaylas
+      - POSTGRES_PASSWORD=kaylas
+      - POSTGRES_DB=kaylas_cloud
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # ─── Ollama (local LLM) ───────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: kaylas-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - backend
+    # No GPU for now; CPU inference is fine for small models on this VPS.
+
+  # ─── n8n (existing, keep on traefik-public) ─────────────────────────
+  # NOTE: If you already have n8n running via another compose, keep it as-is.
+  # This block is here only if you want a single-stack deployment later.
+
+networks:
+  traefik-public:
+    external: true
+  backend:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  ollama-data:

@@ -75,6 +75,18 @@ export const knowledgeBase: KnowledgeEntry[] = [
     answer:
       "I'd love to connect — use the contact panel on the left to book time or send a message and I'll get back to you directly.",
   },
+  {
+    id: 'ai-news-tab',
+    keywords: ['ai news', 'news tab', 'trending', 'viral'],
+    answer:
+      "The AI News tab tracks the top AI infrastructure and research stories — sample data for now, becomes a live hourly pull once the automation phase ships. Say 'open news' and I'll take you there.",
+  },
+  {
+    id: 'research-tab',
+    keywords: ['research lab', 'research tab', 'paper', 'agentic', 'quantum'],
+    answer:
+      "The Research Lab covers where AI jobs land in the next decade — agentic AI, quantum AI, AI infra, and Service + AI. Say 'open research' and I'll take you there.",
+  },
 ]
 
 export const fallbackAnswer =
