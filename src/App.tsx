@@ -37,6 +37,7 @@ function App() {
   const [leadLoading, setLeadLoading] = useState(false)
   const [leadError, setLeadError] = useState('')
   const [leadSuccess, setLeadSuccess] = useState(false)
+  const [stats, setStats] = useState<{uptime_days: number; published_posts: number; total_leads: number; last_publish: string | null; services_running: number} | null>(null)
   const [messages, setMessages] = useState<{ who: string; text: string }[]>([
     { who: 'twin', text: "I'm Kailas's digital twin. Ask me about his work, his vision for Service + AI, or say 'open resume' to navigate. I can also speak — try the mic button." },
   ])
@@ -52,6 +53,13 @@ function App() {
   useEffect(() => {
     const t = setTimeout(() => setBooting(false), 5200)
     return () => clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    fetch(API_BASE + '/stats')
+      .then(r => r.json())
+      .then(setStats)
+      .catch(() => {})
   }, [])
 
   const speak = useCallback((text: string) => {
@@ -205,9 +213,9 @@ function App() {
             <div style={{ border: '1px solid oklch(26% 0.005 240)', padding: 12 }}>
               <div style={{ fontFamily: '"Geist Mono", monospace', fontSize: 10, textTransform: 'uppercase', letterSpacing: '.08em', color: 'oklch(55% 0.005 240)', marginBottom: 8 }}>Live from the VPS</div>
               <div style={{ fontFamily: '"Geist Mono", monospace', fontSize: 11, lineHeight: '18px', color: 'oklch(72% 0.005 240)' }}>
-                <div>uptime <span style={{ color: 'oklch(60% 0.14 160)' }}>99.98%</span></div>
-                <div>posts auto-published <span style={{ color: 'oklch(72% 0.18 215)' }}>47</span></div>
-                <div>last run 12m ago</div>
+                <div>uptime <span style={{ color: 'oklch(60% 0.14 160)' }}>{stats ? stats.uptime_days + 'd' : '...'}</span></div>
+                <div>posts published <span style={{ color: 'oklch(72% 0.18 215)' }}>{stats ? stats.published_posts : '...'}</span></div>
+                <div>leads captured <span style={{ color: 'oklch(72% 0.18 215)' }}>{stats ? stats.total_leads : '...'}</span></div>
               </div>
             </div>
             <div style={{ border: '1px solid oklch(26% 0.005 240)', padding: '10px 12px', fontFamily: '"Geist Mono", monospace', fontSize: 10, lineHeight: '16px', color: 'oklch(55% 0.005 240)' }}>Runs on Hostinger VPS -&gt;<br /><span style={{ color: 'oklch(72% 0.005 240)' }}>affiliate - same stack I teach</span></div>

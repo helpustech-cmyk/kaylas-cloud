@@ -70,3 +70,10 @@ class HealthResponse(BaseModel):
     status: str
     timestamp: str
     services: dict
+
+class StatsResponse(BaseModel):
+    uptime_days: float
+    published_posts: int
+    total_leads: int
+    last_publish: Optional[str] = None
+    services_running: int

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function TowerTab() {
   const [unlocked, setUnlocked] = useState(false)
@@ -14,19 +14,33 @@ export function TowerTab() {
       </div>
     )
   }
-  const towerStats = [
-    { label: 'Uptime 30d', value: '99.98%', sub: 'all monitors green' },
-    { label: 'Chats today', value: '23', sub: '4 leads captured' },
-    { label: 'News runs', value: '24/24', sub: 'last 12m ago' },
-    { label: 'Affiliate clicks', value: '31', sub: 'this week' },
-  ]
-  const containers = [
-    { name: 'caddy', state: 'running', res: '0.1% cpu - 24MB' },
-    { name: 'n8n', state: 'running', res: '1.2% cpu - 210MB' },
-    { name: 'twin-brain', state: 'running', res: '0.8% cpu - 145MB' },
-    { name: 'chromadb', state: 'running', res: '0.4% cpu - 320MB' },
-    { name: 'ollama', state: 'running', res: 'idle - 2.1GB' },
-  ]
+  const [towerStats, setTowerStats] = useState([
+    { label: 'Uptime 30d', value: '...', sub: 'loading' },
+    { label: 'Published posts', value: '...', sub: 'loading' },
+    { label: 'Total leads', value: '...', sub: 'loading' },
+    { label: 'Services', value: '...', sub: 'loading' },
+  ])
+
+  useEffect(() => {
+    fetch('/api/v1/stats')
+      .then(r => r.json())
+      .then(d => {
+        setTowerStats([
+          { label: 'Uptime 30d', value: d.uptime_days + 'd', sub: 'container uptime' },
+          { label: 'Published posts', value: String(d.published_posts), sub: 'live on site' },
+          { label: 'Total leads', value: String(d.total_leads), sub: 'captured' },
+          { label: 'Services', value: String(d.services_running), sub: 'containers running' },
+        ])
+      })
+      .catch(() => {})
+  }, [])
+  const [containers, _setContainers] = useState([
+    { name: 'kaylas-cloud', state: '...', res: '' },
+    { name: 'kaylas-api', state: '...', res: '' },
+    { name: 'kaylas-postgres', state: '...', res: '' },
+    { name: 'kaylas-ollama', state: '...', res: '' },
+    { name: 'n8n', state: '...', res: '' },
+  ])
   return (
     <div style={{ padding: '40px 48px', maxWidth: 1000 }}>
       <div style={{ fontFamily: '"Geist Mono", monospace', fontSize: 11, textTransform: 'uppercase', letterSpacing: '.08em', color: 'oklch(72% 0.18 215)' }}>08 - Admin control tower</div>

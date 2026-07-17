@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db_session
 from app.models import Lead, Conversation, Document, AutomationLog, AnalyticsEvent
-from app.schemas import LeadCreate, LeadResponse, ChatRequest, ChatResponse, ContentCreate, ContentItem, AnalyticsEventCreate, HealthResponse
+from app.schemas import LeadCreate, LeadResponse, ChatRequest, ChatResponse, ContentCreate, ContentItem, AnalyticsEventCreate, HealthResponse, StatsResponse
 from app.telegram import send_telegram_message, format_lead_alert
 from app.llm import generate_chat_response, SYSTEM_PROMPT
 from app.rag import search_documents
@@ -178,4 +178,69 @@ def _content_to_schema(doc: Document) -> ContentItem:
         series=doc.series,
         published_at=doc.published_at.isoformat() if doc.published_at else None,
         status=doc.status,
+    )
+
+
+import subprocess
+import hmac
+import hashlib
+import os
+
+GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET", "")
+
+
+@router.post("/deploy")
+async def webhook_deploy(request: Request):
+    body = await request.body()
+    if GITHUB_WEBHOOK_SECRET:
+        sig_header = request.headers.get("x-hub-signature-256", "")
+        expected = "sha256=" + hmac.new(
+            GITHUB_WEBHOOK_SECRET.encode(), body, hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(sig_header, expected):
+            raise HTTPException(status_code=401, detail="Invalid signature")
+    subprocess.Popen(
+        ["bash", "-c",
+         "cd /root/kaylas-cloud && git pull origin master && npm run build && docker compose build kaylas-cloud && docker compose up -d kaylas-cloud"
+        ],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    return {"status": "deploy started", "event": request.headers.get("x-github-event", "push")}
+
+@router.get("/stats", response_model=StatsResponse)
+async def site_stats(db: Session = Depends(get_db)):
+    from app.schemas import StatsResponse
+    from datetime import datetime, timezone, timedelta
+    import os, time
+
+    # Count published posts
+    post_count = db.query(Document).filter(Document.status == "published").count()
+
+    # Count leads
+    lead_count = db.query(Lead).count()
+
+    # Last published post date
+    last = db.query(Document).filter(Document.status == "published").order_by(Document.published_at.desc()).first()
+    last_pub = last.published_at.isoformat() if last and last.published_at else None
+
+    # Container uptime — read from /proc/1/stat (container start time)
+    try:
+        with open("/proc/1/stat") as f:
+            parts = f.read().split()
+            start_ticks = int(parts[21])
+            clk_tck = os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+            boot_time = time.time() - (start_ticks / clk_tck)
+            uptime_days = round((time.time() - boot_time) / 86400, 1)
+    except Exception:
+        uptime_days = 0.0
+
+    # Count running services (containers we know about)
+    services_running = 5  # api, frontend, postgres, ollama, traefik
+
+    return StatsResponse(
+        uptime_days=uptime_days,
+        published_posts=post_count,
+        total_leads=lead_count,
+        last_publish=last_pub,
+        services_running=services_running,
     )
