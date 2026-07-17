@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
 from app.routers import router
+from app.telegram_bot import router as telegram_router
 
 app = FastAPI(title="kaylas.cloud API", version="1.0.0")
 
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api/v1")
+app.include_router(telegram_router, prefix="/api/v1")
 
 
 @app.on_event("startup")
