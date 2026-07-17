@@ -27,12 +27,15 @@ async def send_telegram_message(text: str) -> Optional[dict]:
         return res.json()
 
 
-def format_lead_alert(name: str, email: str, company: Optional[str], source: Optional[str], message: Optional[str]) -> str:
+def format_lead_alert(name: str, email: str, phone: Optional[str] = None, country_code: Optional[str] = None, company: Optional[str] = None, source: Optional[str] = None, message: Optional[str] = None) -> str:
     lines = [
         "🔔 *New lead on kaylas.cloud*",
         f"*Name:* {name}",
         f"*Email:* {email}",
     ]
+    if phone:
+        cc = country_code or "+91"
+        lines.append(f"*Phone:* {cc} {phone}")
     if company:
         lines.append(f"*Company:* {company}")
     if source:

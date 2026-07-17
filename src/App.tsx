@@ -26,6 +26,23 @@ const TABS: { id: TabId; label: string }[] = [
 
 const API_BASE = '/api/v1'
 
+const COUNTRY_CODES = [
+  '+91', '+1', '+44', '+61', '+86', '+49', '+33', '+81', '+7', '+55',
+  '+82', '+39', '+34', '+31', '+46', '+41', '+47', '+45', '+358', '+30',
+  '+48', '+351', '+43', '+32', '+36', '+420', '+353', '+40', '+359', '+385',
+  '+381', '+386', '+421', '+386', '+372', '+371', '+370', '+352', '+356', '+377',
+  '+389', '+373', '+382', '+387', '+90', '+972', '+966', '+971', '+974', '+968',
+  '+20', '+212', '+213', '+216', '+218', '+221', '+222', '+223', '+224', '+225',
+  '+226', '+227', '+228', '+229', '+230', '+231', '+232', '+233', '+234', '+235',
+  '+236', '+237', '+238', '+239', '+240', '+241', '+242', '+243', '+244', '+245',
+  '+246', '+247', '+248', '+249', '+250', '+251', '+252', '+253', '+254', '+255',
+  '+256', '+257', '+258', '+260', '+261', '+262', '+263', '+264', '+265', '+266',
+  '+267', '+268', '+269', '+27', '+92', '+93', '+94', '+95', '+98', '+63',
+  '+62', '+60', '+66', '+84', '+880', '+856', '+855', '+975', '+977', '+670',
+  '+673', '+674', '+675', '+676', '+677', '+678', '+679', '+680', '+681', '+682',
+  '+683', '+685', '+686', '+687', '+688', '+689', '+690', '+691', '+692',
+]
+
 function App() {
   const [tab, setTab] = useState<TabId>('about')
   const [booting, setBooting] = useState(true)
@@ -48,6 +65,8 @@ function App() {
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const companyRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const countryRef = useRef<HTMLSelectElement>(null)
   const sessionId = useRef('session_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36))
 
   useEffect(() => {
@@ -111,6 +130,8 @@ function App() {
   const handleLeadSubmit = useCallback(async () => {
     const name = nameRef.current?.value.trim()
     const email = emailRef.current?.value.trim()
+    const phone = phoneRef.current?.value.trim()
+    const country_code = countryRef.current?.value || '+91'
     const company = companyRef.current?.value.trim()
     if (!name || !email) {
       setLeadError('Name and email are required')
@@ -122,7 +143,7 @@ function App() {
       const res = await fetch(`${API_BASE}/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, company: company || undefined, source: 'website' }),
+        body: JSON.stringify({ name, email, phone: phone || undefined, country_code, company: company || undefined, source: 'website' }),
       })
       if (!res.ok) throw new Error('Failed to submit')
       setLeadSuccess(true)
@@ -271,6 +292,12 @@ function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
               <input ref={nameRef} placeholder="Name" style={{ background: 'oklch(14% 0.005 240)', border: '1px solid oklch(34% 0.005 240)', color: 'oklch(96% 0.005 240)', fontSize: 13, padding: '10px 12px', outline: 'none', fontFamily: 'inherit' }} />
               <input ref={emailRef} placeholder="Work email" style={{ background: 'oklch(14% 0.005 240)', border: '1px solid oklch(34% 0.005 240)', color: 'oklch(96% 0.005 240)', fontSize: 13, padding: '10px 12px', outline: 'none', fontFamily: 'inherit' }} />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <select ref={countryRef} defaultValue="+91" style={{ width: 80, background: 'oklch(14% 0.005 240)', border: '1px solid oklch(34% 0.005 240)', color: 'oklch(96% 0.005 240)', fontSize: 13, padding: '10px 4px', outline: 'none', fontFamily: 'inherit' }}>
+                  {COUNTRY_CODES.map(cc => <option key={cc} value={cc}>{cc}</option>)}
+                </select>
+                <input ref={phoneRef} placeholder="Phone (optional)" type="tel" style={{ flex: 1, background: 'oklch(14% 0.005 240)', border: '1px solid oklch(34% 0.005 240)', color: 'oklch(96% 0.005 240)', fontSize: 13, padding: '10px 12px', outline: 'none', fontFamily: 'inherit' }} />
+              </div>
               <input ref={companyRef} placeholder="Company (optional)" style={{ background: 'oklch(14% 0.005 240)', border: '1px solid oklch(34% 0.005 240)', color: 'oklch(96% 0.005 240)', fontSize: 13, padding: '10px 12px', outline: 'none', fontFamily: 'inherit' }} />
             </div>
             {leadError && <div style={{ fontSize: 12, color: 'oklch(60% 0.18 20)', marginTop: 8 }}>{leadError}</div>}

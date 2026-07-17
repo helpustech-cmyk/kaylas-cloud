@@ -13,6 +13,8 @@ class Lead(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
+    phone = Column(String(20), nullable=True)
+    country_code = Column(String(5), nullable=True, default="+91")
     company = Column(String(255), nullable=True)
     source = Column(String(100), nullable=True)
     message = Column(Text, nullable=True)

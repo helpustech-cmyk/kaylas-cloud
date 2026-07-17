@@ -5,6 +5,8 @@ from typing import Optional
 class LeadCreate(BaseModel):
     name: str
     email: EmailStr
+    phone: Optional[str] = None
+    country_code: Optional[str] = "+91"
     company: Optional[str] = None
     source: Optional[str] = "website"
     message: Optional[str] = None
@@ -14,6 +16,8 @@ class LeadResponse(BaseModel):
     id: str
     name: str
     email: str
+    phone: Optional[str] = None
+    country_code: Optional[str] = "+91"
     status: str
     created_at: str
 
