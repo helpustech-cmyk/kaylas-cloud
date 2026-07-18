@@ -185,6 +185,43 @@ def _content_to_schema(doc: Document) -> ContentItem:
     )
 
 
+@router.get("/alignment/status")
+async def alignment_status(db: Session = Depends(get_db)):
+    from app.models import SiteMetric
+    metric = db.query(SiteMetric).filter(SiteMetric.key == "alignment_index").first()
+    current_index = int(metric.value) if metric else 0
+    date_metric = db.query(SiteMetric).filter(SiteMetric.key == "alignment_publish_date").first()
+    return {
+        "current_index": current_index,
+        "total_articles": 7,
+        "last_publish": date_metric.value if date_metric else None,
+        "next_publish_scheduled": True
+    }
+
+@router.post("/alignment/advance")
+async def alignment_advance(db: Session = Depends(get_db)):
+    from app.models import SiteMetric
+    from datetime import datetime, timezone
+    metric = db.query(SiteMetric).filter(SiteMetric.key == "alignment_index").first()
+    current_index = int(metric.value) if metric else 0
+    if current_index >= 7:
+        return {"status": "all_published", "current_index": current_index}
+    new_index = current_index + 1
+    if metric:
+        metric.value = str(new_index)
+        metric.updated_at = datetime.now(timezone.utc)
+    else:
+        db.add(SiteMetric(key="alignment_index", value=str(new_index)))
+    date_metric = db.query(SiteMetric).filter(SiteMetric.key == "alignment_publish_date").first()
+    now = datetime.now(timezone.utc).isoformat()
+    if date_metric:
+        date_metric.value = now
+        date_metric.updated_at = datetime.now(timezone.utc)
+    else:
+        db.add(SiteMetric(key="alignment_publish_date", value=now))
+    db.commit()
+    return {"status": "advanced", "current_index": new_index}
+
 import subprocess
 import hmac
 import hashlib

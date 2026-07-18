@@ -1,4 +1,4 @@
-export type TabId = 'about' | 'resume' | 'news' | 'research' | 'repos' | 'training' | 'social' | 'tower'
+export type TabId = 'about' | 'resume' | 'news' | 'research' | 'repos' | 'training' | 'social' | 'tower' | 'alignment'
 
 const NAV_INTENTS: { tab: TabId; keywords: string[] }[] = [
   { tab: 'resume', keywords: ['resume', 'cv'] },
@@ -9,6 +9,7 @@ const NAV_INTENTS: { tab: TabId; keywords: string[] }[] = [
   { tab: 'social', keywords: ['social', 'linkedin', 'twitter'] },
   { tab: 'tower', keywords: ['tower', 'admin', 'control'] },
   { tab: 'about', keywords: ['about', 'home', 'overview'] },
+  { tab: 'alignment', keywords: ['alignment', 'gap', 'playbook', 'field manual', 'bot failure'] },
 ]
 
 export function resolveNavIntent(query: string): TabId | null {

@@ -9,6 +9,7 @@ import { ReposTab } from './components/tabs/ReposTab'
 import { TrainingTab } from './components/tabs/TrainingTab'
 import { SocialTab } from './components/tabs/SocialTab'
 import { TowerTab } from './components/tabs/TowerTab'
+import { AlignmentTab } from './components/tabs/AlignmentTab'
 import { profile } from './data/resume'
 import type { TabId } from './lib/navigation'
 import './App.css'
@@ -21,7 +22,8 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'repos', label: '05 Repos' },
   { id: 'training', label: '06 Training' },
   { id: 'social', label: '07 Social' },
-  { id: 'tower', label: '08 Tower' },
+  { id: 'alignment', label: '09 Alignment Gap' },
+  { id: 'tower', label: '10 Tower' },
 ]
 
 const API_BASE = '/api/v1'
@@ -250,6 +252,7 @@ function App() {
           {tab === 'repos' && <ReposTab />}
           {tab === 'training' && <TrainingTab />}
           {tab === 'social' && <SocialTab />}
+          {tab === 'alignment' && <AlignmentTab />}
           {tab === 'tower' && <TowerTab />}
         </div>
       </div>
