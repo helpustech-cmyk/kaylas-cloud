@@ -1,0 +1,32 @@
+{
+  "topic_id": "pm-kisan",
+  "topic_name": "PM Kisan Samman Nidhi",
+  "category": "kisan",
+  "source_url": "https://pmkisan.gov.in/",
+  "source_checked": "2026-11-27",
+  "title": "PM Kisan 24th Kist: Kahin Aapka Naam Toh Nahi Chhoot Gaya? e-KYC Zaroor Karein",
+  "thumbnail_text": "₹6,000 kahin chhoot toh nahi gaye?",
+  "beats": [
+    {"beat": "hook", "pose": "worried", "line": "Nau crore se zyada kisan parivaron ko paisa mila. Kahin aapka naam chhoot toh nahi gaya?", "screen": "9 crore+ kisan"},
+    {"beat": "problem", "pose": "worried", "line": "Sabse badi wajah hai e-KYC na hona. Bina e-KYC ke kist ruk sakti hai.", "screen": "❌ e-KYC nahi"},
+    {"beat": "scheme", "pose": "explaining", "line": "Is yojana mein paatra kisanon ko saal ke 6,000 rupaye milte hain, 2,000 ki teen kiston mein, seedha bank khaate mein.", "screen": "₹6,000 / saal"},
+    {"beat": "update", "pose": "happy_pointing", "line": "24vi kist 30 October 2026 ko jaari hui.", "screen": "24vi kist jaari"},
+    {"beat": "eligibility", "pose": "explaining", "line": "Chhote aur seemant kisan, Aadhaar se jura bank khaata, aur satyapit zameen ke records. Ucchi aay wale peshevar aur 10,000 rupaye mahine se zyada pension wale paatra nahi hain.", "screen": "Kaun paatra?"},
+    {"beat": "apply", "pose": "holding_phone", "line": "Pehla, pmkisan.gov.in kholein. Doosra, e-KYC poora karein. Teesra, apna status check karein.", "screen": "3 aasaan steps"},
+    {"beat": "warning", "pose": "warning", "line": "Sirf pmkisan.gov.in par hi jaankari bharein. Nakli link se bachein, koi bhi OTP kisi ko na dein.", "screen": "⚠️ Nakli link se bachein"},
+    {"beat": "cta", "pose": "celebrating", "line": "Agar video kaam ka laga, subscribe karein. Agli video mein batayenge ki aur kaun si yojana mein aapka paisa chhoot raha hai.", "screen": "Subscribe karein"}
+  ],
+  "description_intro": "PM Kisan 24vi kist, e-KYC aur status check: saal ke 6,000 rupaye kaise milenge, poori jaankari.",
+  "eligibility_summary": "Chhote aur seemant kisan, Aadhaar se jura bank khaata, satyapit zameen ke records.",
+  "amount_summary": "6,000 rupaye saal, 2,000 ki teen kiston mein.",
+  "tags": ["pm kisan 24th installment", "pm kisan ekyc", "pm kisan status check", "sarkari yojana 2026", "kisan samman nidhi", "farmer scheme hindi"],
+  "hashtags": ["#PMKisan", "#SarkariYojana", "#KisanYojana"],
+  "extra_hashtags": ["#NitiMarg"],
+  "pinned_question": "Aapko kist mili? Comment mein batayein.",
+  "playlist": "Kisan schemes",
+  "short_beats": ["hook", "warning"],
+  "short": {
+    "hook": "Nau crore se zyada kisanon ko paisa mila. Kahin aapka naam chhoot toh nahi gaya?",
+    "warning": "Sirf pmkisan.gov.in par jaankari bharein. Koi bhi OTP kisi ko na dein."
+  }
+}
