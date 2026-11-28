@@ -84,18 +84,18 @@ def _text_block(d: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, fnt, fil
 
 
 def _paste_pose(canvas: Image.Image, pose_path: Path, box: tuple[int, int, int, int],
-                bob: bool = False) -> None:
+                bob: bool = False, shift: float = 0.0) -> None:
     pose = Image.open(pose_path).convert("RGBA")
     bw, bh = box[2] - box[0], box[3] - box[1]
     scale = min(bw / pose.width, bh / pose.height) * (1.012 if bob else 1.0)
     pose = pose.resize((int(pose.width * scale), int(pose.height * scale)), Image.LANCZOS)
-    x = box[0] + (bw - pose.width) // 2
+    x = box[0] + (bw - pose.width) // 2 + int(bw * shift)
     y = box[3] - pose.height - (int(bh * 0.012) if bob else 0)
     canvas.alpha_composite(pose, (x, y))
 
 
 def compose_frame(cfg: Config, size: tuple[int, int], pose_path: Path, caption: str, screen: str,
-                  source: str, bob: bool = False) -> Image.Image:
+                  source: str, bob: bool = False, shift: float = 0.0) -> Image.Image:
     w, h = size
     caption, screen = clean_text(caption), clean_text(screen)
     img = Image.new("RGBA", size, BRAND["green"] + (255,))
@@ -121,7 +121,7 @@ def compose_frame(cfg: Config, size: tuple[int, int], pose_path: Path, caption: 
         _text_block(d, (int(w * 0.07), band_top + 25), caption, cap_font, BRAND["white"], 28,
                     anchor_center=True, box_w=int(w * 0.86))
     else:
-        _paste_pose(img, pose_path, (0, bar + 10, int(w * 0.42), h - int(h * 0.2)), bob)
+        _paste_pose(img, pose_path, (0, bar + 10, int(w * 0.42), h - int(h * 0.2)), bob, shift)
         if screen:
             _text_block(d, (int(w * 0.45), int(h * 0.2)), screen, title_font, BRAND["saffron"], 14)
         band_top = h - int(h * 0.22)
@@ -187,6 +187,27 @@ class Segment:
     seconds: float
 
 
+# Pose rotation per beat: the character changes pose every few seconds so she
+# never looks frozen. The script's pose for the beat always comes first.
+POSE_ROTATION = {
+    "hook": ["worried", "thinking", "explaining"],
+    "problem": ["worried", "explaining", "thinking"],
+    "scheme": ["explaining", "happy_pointing", "neutral"],
+    "update": ["happy_pointing", "celebrating", "explaining"],
+    "eligibility": ["explaining", "thinking", "happy_pointing"],
+    "apply": ["holding_phone", "explaining", "happy_pointing"],
+    "warning": ["warning", "worried", "warning"],
+    "cta": ["celebrating", "happy_pointing", "neutral"],
+}
+# Small sideways moves between pose changes (fraction of the pose box width)
+SHIFTS = [0.0, 0.035, -0.025, 0.02]
+
+
+def pose_cycle(beat: dict[str, Any]) -> list[str]:
+    rest = [p for p in POSE_ROTATION.get(beat["beat"], ["neutral"]) if p != beat["pose"]]
+    return [beat["pose"], *rest] if rest else [beat["pose"]]
+
+
 def _beat_segments(cfg: Config, size: tuple[int, int], beat: dict[str, Any], idx: int, wav: Path,
                    frames_dir: Path, source: str, trailing_gap: float) -> list[Segment]:
     total = audio.duration(wav)
@@ -200,35 +221,57 @@ def _beat_segments(cfg: Config, size: tuple[int, int], beat: dict[str, Any], idx
     runs = audio.mouth_track(wav, cfg.mouth_fps) or [(False, total)]
     if trailing_gap:
         runs = runs + [(False, trailing_gap)]
+    span = total + trailing_gap
+    cycle = pose_cycle(beat)
+    step = cfg.pose_switch_seconds if cfg.pose_switch_seconds > 0 else span + 1
 
-    cache: dict[tuple[int, bool], Path] = {}
+    # Every moment a frame can change: mouth, caption chunk, or pose switch
+    cuts = {0.0, span}
+    t = 0.0
+    for _, secs in runs:
+        t += secs
+        cuts.add(min(t, span))
+    cuts.update(b for b in bounds if b < span)
+    k = step
+    while k < span - 0.4:  # skip a switch in the last 0.4s (looks like a glitch)
+        cuts.add(k)
+        k += step
+    points = sorted(cuts)
 
-    def frame(ci: int, mouth: bool) -> Path:
-        key = (ci, mouth)
+    run_ends, acc = [], 0.0
+    for mouth, secs in runs:
+        acc += secs
+        run_ends.append((acc, mouth))
+
+    cache: dict[tuple, Path] = {}
+
+    def frame(ci: int, mouth: bool, slot: int) -> Path:
+        pose_name = cycle[slot % len(cycle)]
+        shift = SHIFTS[slot % len(SHIFTS)]
+        key = (ci, mouth, pose_name, shift)
         if key not in cache:
-            closed, opened = resolve(cfg.poses_dir, beat["pose"])
+            closed, opened = resolve(cfg.poses_dir, pose_name)
             # Two mouth images -> real lip-sync; one image -> a small head-bob on speech
             pose, bob = (opened, False) if (mouth and opened) else (closed, mouth and not opened)
-            path = frames_dir / f"b{idx:02d}_c{ci:02d}_{'o' if mouth else 'c'}.png"
-            compose_frame(cfg, size, pose, chunks[ci], beat.get("screen", ""), source, bob).save(path)
+            path = frames_dir / f"b{idx:02d}_c{ci:02d}_s{slot % 12:02d}_{'o' if mouth else 'c'}.png"
+            compose_frame(cfg, size, pose, chunks[ci], beat.get("screen", ""), source, bob,
+                          shift).save(path)
             cache[key] = path
         return cache[key]
 
     segs: list[Segment] = []
-    t = 0.0
-    for mouth, secs in runs:
-        end = t + secs
-        while t < end - 1e-6:
-            ci = next((i for i, b in enumerate(bounds) if t < b - 1e-6), len(chunks) - 1)
-            cut = min(end, bounds[ci]) if ci < len(chunks) - 1 else end
-            if cut <= t:
-                cut = end
-            img = frame(ci, mouth)
-            if segs and segs[-1].image == img:
-                segs[-1].seconds += cut - t
-            else:
-                segs.append(Segment(img, cut - t))
-            t = cut
+    for a, b in zip(points, points[1:]):
+        if b - a < 1e-6:
+            continue
+        mid = (a + b) / 2
+        mouth = next((m for e, m in run_ends if mid < e), False)
+        ci = next((i for i, bd in enumerate(bounds) if mid < bd), len(chunks) - 1)
+        slot = int(mid // step)
+        img = frame(ci, mouth, slot)
+        if segs and segs[-1].image == img:
+            segs[-1].seconds += b - a
+        else:
+            segs.append(Segment(img, b - a))
     return segs
 
 

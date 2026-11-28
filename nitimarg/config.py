@@ -71,6 +71,8 @@ class Config:
     short_size: tuple[int, int] = (1080, 1920)
     fps: int = field(default_factory=lambda: _int("NM_FPS", 25))
     mouth_fps: int = field(default_factory=lambda: _int("NM_MOUTH_FPS", 8))
+    # The character changes pose / position this often (0 = one pose per beat)
+    pose_switch_seconds: float = field(default_factory=lambda: float(_env("NM_POSE_SWITCH_SECONDS", "2.5")))
     ffmpeg_threads: int = field(default_factory=lambda: _int("NM_FFMPEG_THREADS", 2))
     short_max_seconds: int = field(default_factory=lambda: _int("NM_SHORT_MAX_SECONDS", 30))
     teaser_max_seconds: int = field(default_factory=lambda: _int("NM_TEASER_MAX_SECONDS", 15))
