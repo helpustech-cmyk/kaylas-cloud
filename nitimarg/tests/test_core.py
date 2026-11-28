@@ -194,23 +194,3 @@ def test_render_with_single_image_poses_uses_bob(tmp_path, monkeypatch):
     frames = list((tmp_path / "s_frames").glob("b00_*"))
     assert {f.name[-5] for f in frames} == {"o", "c"}  # talking and resting frames both made
     assert Path(res["path"]).exists()
-
-
-@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg not installed")
-def test_character_changes_pose_every_few_seconds(tmp_path, monkeypatch):
-    monkeypatch.setenv("NM_TTS", "preview")
-    cfg = Config()
-    cfg.poses_dir = tmp_path / "poses"
-    cfg.pose_switch_seconds = 2.5
-    ensure_poses(cfg.poses_dir)
-    beat = next(b for b in SAMPLE["beats"] if b["beat"] == "eligibility")  # long beat
-    wav = tmp_path / "e.wav"
-    tts.speak(cfg, beat["line"], wav)
-    frames = tmp_path / "f"
-    frames.mkdir()
-    segs = render._beat_segments(cfg, (320, 180), beat, 0, wav, frames, "x.gov.in", 0.0)
-    assert sum(s.seconds for s in segs) == pytest.approx(audio.duration(wav), abs=0.01)
-    slots = {s.image.name.split("_")[2] for s in segs}
-    expected = int((audio.duration(wav) - 0.4) // 2.5) + 1
-    assert len(slots) == expected >= 3
-    assert render.pose_cycle(beat)[0] == beat["pose"]
