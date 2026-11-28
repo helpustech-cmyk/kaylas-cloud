@@ -1,0 +1,7 @@
+# Niti Marg on Hermes (crontab -e). Times are server local time.
+# Daily 6 AM: topic -> script -> fact check -> voice -> render -> Telegram
+0 6 * * *    cd /opt/kaylas-cloud && /opt/nitimarg-venv/bin/python -m nitimarg run    >> /opt/nitimarg-work/cron.log 2>&1
+# Every 5 minutes: handle Approve / Reject / Re-make taps, then upload
+*/5 * * * *  cd /opt/kaylas-cloud && /opt/nitimarg-venv/bin/python -m nitimarg poll   >> /opt/nitimarg-work/cron.log 2>&1
+# Monday 9 PM: weekly sentiment check, proposes new topics on Telegram
+0 21 * * 1   cd /opt/kaylas-cloud && /opt/nitimarg-venv/bin/python -m nitimarg trends >> /opt/nitimarg-work/cron.log 2>&1

@@ -1,0 +1,15 @@
+[
+  {"id": "pm-kisan", "name": "PM Kisan Samman Nidhi", "category": "kisan", "official_url": "https://pmkisan.gov.in/", "keywords": ["pm kisan kist", "pm kisan ekyc", "pm kisan status"], "priority": 5},
+  {"id": "pm-awas-gramin", "name": "PM Awas Yojana Gramin", "category": "general", "official_url": "https://pmayg.nic.in/", "keywords": ["pm awas yojana", "ghar ke liye paise"], "priority": 4},
+  {"id": "ayushman-bharat", "name": "Ayushman Bharat PM-JAY card", "category": "general", "official_url": "https://pmjay.gov.in/", "keywords": ["ayushman card", "5 lakh ilaj free"], "priority": 4},
+  {"id": "kisan-credit-card", "name": "Kisan Credit Card loan", "category": "loans", "official_url": "https://pmkisan.gov.in/", "keywords": ["kisan credit card", "kcc loan"], "priority": 3},
+  {"id": "pm-mudra", "name": "PM Mudra Yojana business loan", "category": "loans", "official_url": "https://www.mudra.org.in/", "keywords": ["mudra loan", "business loan bina guarantee"], "priority": 3},
+  {"id": "sukanya-samriddhi", "name": "Sukanya Samriddhi Yojana", "category": "women", "official_url": "https://www.indiapost.gov.in/", "keywords": ["sukanya samriddhi", "beti ke liye bachat"], "priority": 3},
+  {"id": "pm-ujjwala", "name": "PM Ujjwala Yojana free gas connection", "category": "women", "official_url": "https://pmuy.gov.in/", "keywords": ["ujjwala yojana", "free gas connection"], "priority": 3},
+  {"id": "atal-pension", "name": "Atal Pension Yojana", "category": "general", "official_url": "https://www.npscra.nsdl.co.in/scheme-details.php", "keywords": ["atal pension yojana", "monthly pension"], "priority": 2},
+  {"id": "pm-svanidhi", "name": "PM SVANidhi street vendor loan", "category": "loans", "official_url": "https://pmsvanidhi.mohua.gov.in/", "keywords": ["svanidhi loan", "rehri patri loan"], "priority": 2},
+  {"id": "e-shram", "name": "e-Shram card for workers", "category": "general", "official_url": "https://eshram.gov.in/", "keywords": ["e shram card", "majdoor card"], "priority": 2},
+  {"id": "nri-itr-filing", "name": "NRI income tax return in India", "category": "nri", "official_url": "https://www.incometax.gov.in/", "keywords": ["nri itr", "nri tax india"], "priority": 3},
+  {"id": "nri-nre-nro", "name": "NRE vs NRO account for NRIs", "category": "nri", "official_url": "https://www.rbi.org.in/", "keywords": ["nre nro account", "nri bank account"], "priority": 3},
+  {"id": "nri-property-tds", "name": "TDS when an NRI sells property in India", "category": "nri", "official_url": "https://www.incometax.gov.in/", "keywords": ["nri property sale tds", "nri property tax"], "priority": 2}
+]
