@@ -24,6 +24,7 @@ Monday ───► trends: most-viewed topics this week ─► new topic ideas 
 | `python -m nitimarg poll` | Handle Telegram taps and upload approved runs |
 | `python -m nitimarg trends` | Weekly sentiment check |
 | `python -m nitimarg poses` | Create placeholder poses for any missing pose files |
+| `python -m nitimarg prep-poses <folder>` | Cut out real pose art (white background) into `poses/` |
 | `python -m nitimarg status` | Videos made, streak, last runs |
 
 Set `NM_TTS=preview` to use an offline stand-in voice for layout checks (no API calls).
@@ -46,7 +47,8 @@ crontab -e                               # paste nitimarg/crontab.example
   `https://www.googleapis.com/auth/youtube.force-ssl`), and store the refresh token in
   `NM_YT_REFRESH_TOKEN`. Custom thumbnails need a phone-verified channel. The API can't pin
   comments, so pin the top comment once in YouTube Studio (the bot reminds you).
-- **Poses:** replace the placeholder files in `nitimarg/poses/` with the real art, keeping
+- **Poses:** export the approved style-F poses from Figma and run `python -m nitimarg prep-poses <folder>`
+  (see `characters/pose_prompts.md`). Or replace the placeholder files in `nitimarg/poses/`, keeping
   the same names: `<pose>_open.png` and `<pose>_closed.png`, transparent PNG, about 800×1000.
   Poses: `neutral`, `happy_pointing`, `worried`, `explaining`, `warning`, `celebrating`,
   `thinking`, `holding_phone`. Real files are never overwritten.

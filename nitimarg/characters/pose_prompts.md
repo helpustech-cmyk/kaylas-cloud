@@ -1,45 +1,45 @@
-# Niti Didi pose prompts
+# Niti Didi pose prompts (style F: bold 3D mascot)
 
-Make the poses once, outside the VPS, with any free image tool (Gemini, Ideogram, Leonardo,
-Bing Image Creator). Generate `neutral` first, then attach it as the reference image for every
-other pose so her face, glasses and kurta stay the same.
+The approved set is in the Figma file **Niti Didi 3D Character Options** (frames 2:2 to 2:9).
+To make more poses, paste the master prompt and change only the POSE line. Ask for a solid
+pure white background so `prep-poses` can cut her out automatically.
 
-## Master style (paste before every pose)
+## Master prompt
 
-> Flat 2D cartoon character, simple vector style, thick dark outline, flat colours, no
-> gradients, no shadows, no text. Young Indian woman "Niti Didi": round face, big expressive
-> dark eyes, small friendly smile, warm brown skin, black hair in a neat bun, round thin-rimmed
-> glasses, small red bindi. Bold saffron (#FF9933) kurta with a deep green (#136238) dupatta
-> over one shoulder. Upper body visible from the waist up, facing the viewer, centred, plain
-> transparent background (or flat white if transparency isn't supported). Portrait 4:5,
-> same proportions and line weight in every image.
+> Sleek modern stylised 3D character, crisp high-contrast look, sharp clean silhouette, smooth
+> matte-satin materials, YouTube mascot quality. Character sheet consistency: "Niti Didi",
+> stylish smart young Indian woman finance explainer, expressive heart-shaped face, large bright
+> brown eyes, defined brows, warm brown skin, sleek black hair in a sharp top-knot bun with a
+> single wavy strand on the right, bold round black-framed glasses, small red bindi, small gold
+> hoop earrings, fitted saffron kurta (#FF9933) with subtle geometric gold print, emerald green
+> dupatta (#136238) across her left shoulder, slim gold smartwatch on left wrist.
+> POSE: `<pose line>`. Waist-up, centred, same framing as a character turnaround. Strong studio
+> key light with a soft saffron rim light. Solid pure white background (#FFFFFF), no shadow on
+> background, no text.
 
-## Poses (file names the pipeline expects)
+## Pose lines
 
-| # | File prefix | Pose prompt (add after the master style) |
-|---|---|---|
-| 1 | `neutral` | Neutral talking, arms relaxed at her sides, calm warm expression. |
-| 2 | `happy_pointing` | Happy, big smile, right arm raised pointing to the upper right (where a number appears). |
-| 3 | `worried` | Worried, eyebrows raised and tilted, both hands clasped near her chest. |
-| 4 | `explaining` | Explaining, both palms open and turned up at waist height, friendly face. |
-| 5 | `warning` | Serious warning, right index finger raised next to her face, firm look. |
-| 6 | `celebrating` | Celebrating, both arms raised up, big open smile. |
-| 7 | `thinking` | Thinking, right hand on chin, eyes looking up and to the side. |
-| 8 | `holding_phone` | Holding a smartphone in her right hand, screen turned towards the viewer, slight smile. |
+| File | POSE line |
+|---|---|
+| `neutral` | neutral talking, standing straight facing viewer, arms relaxed at her sides, calm warm friendly smile, mouth closed |
+| `happy_pointing` | happy, big bright smile, left hand on hip, right arm raised pointing up to the upper right with index finger as if revealing a big number |
+| `worried` | worried and concerned, eyebrows raised and tilted up in the middle, lips pressed, both hands clasped together near her chest, slight head tilt |
+| `explaining` | explaining, both palms open and turned up at waist height, friendly engaged smile, eyebrows slightly raised |
+| `warning` | serious warning, firm look, brows lowered, right index finger raised next to her face in a "be careful" gesture, left hand on hip |
+| `celebrating` | celebrating, both arms raised up in joy with fists, big open happy smile, eyes bright |
+| `thinking` | thinking, right hand on chin, eyes looking up and to the side, slight thoughtful half smile, left arm folded across waist |
+| `holding_phone` | holding a smartphone in her right hand with the blank bright screen turned towards the viewer, left index finger pointing at the phone screen, helpful confident smile |
 
-## Two mouth states per pose
+## Getting them into the pipeline
 
-For each pose make two images that are identical except for the mouth:
+1. In Figma, select each pose frame and export it as PNG (2x), named as in the table
+   (`neutral.png`, `worried.png`, ...).
+2. Copy the files to Hermes, then run
+   `python -m nitimarg prep-poses /path/to/exports`.
+   This cuts out the white background (keeping white details like the phone screen) and puts the
+   files in `nitimarg/poses/`.
+3. One image per pose is enough: while she speaks, the renderer adds a small head-bob.
+   For true lip-sync, also add `<pose>_open.png` (the same image with the mouth open, e.g.
+   edited in Figma or Canva) and rename the first one to `<pose>_closed.png`.
 
-- `<prefix>_closed.png`: mouth closed (small smile, or a flat line for `worried` and `warning`).
-- `<prefix>_open.png`: mouth open in a relaxed speaking "aa" shape.
-
-Easiest way: generate the closed version, then ask the tool to edit only the mouth to open
-(or open the image in Canva or Photopea, draw the open mouth once, and reuse it on all 8).
-
-## File checklist
-
-- 16 PNG files, transparent background, about 800×1000 px (any 4:5 size works; they are scaled).
-- Names exactly as above, for example `warning_open.png`, `warning_closed.png`.
-- Copy them to `nitimarg/poses/` on Hermes. Real files are never overwritten by the placeholders.
-- Banner and profile picture: reuse `neutral_closed.png` with the channel name (doc section 10).
+Banner and profile picture: use `neutral.png` with the channel name (doc section 10).

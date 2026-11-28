@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 
 from . import audio
+from .poses import resolve
 from .config import BRAND, Config
 
 FALLBACK_FONTS = [
@@ -82,18 +83,19 @@ def _text_block(d: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, fnt, fil
     return y
 
 
-def _paste_pose(canvas: Image.Image, pose_path: Path, box: tuple[int, int, int, int]) -> None:
+def _paste_pose(canvas: Image.Image, pose_path: Path, box: tuple[int, int, int, int],
+                bob: bool = False) -> None:
     pose = Image.open(pose_path).convert("RGBA")
     bw, bh = box[2] - box[0], box[3] - box[1]
-    scale = min(bw / pose.width, bh / pose.height)
+    scale = min(bw / pose.width, bh / pose.height) * (1.012 if bob else 1.0)
     pose = pose.resize((int(pose.width * scale), int(pose.height * scale)), Image.LANCZOS)
     x = box[0] + (bw - pose.width) // 2
-    y = box[3] - pose.height
+    y = box[3] - pose.height - (int(bh * 0.012) if bob else 0)
     canvas.alpha_composite(pose, (x, y))
 
 
 def compose_frame(cfg: Config, size: tuple[int, int], pose_path: Path, caption: str, screen: str,
-                  source: str) -> Image.Image:
+                  source: str, bob: bool = False) -> Image.Image:
     w, h = size
     caption, screen = clean_text(caption), clean_text(screen)
     img = Image.new("RGBA", size, BRAND["green"] + (255,))
@@ -112,14 +114,14 @@ def compose_frame(cfg: Config, size: tuple[int, int], pose_path: Path, caption: 
         if screen:
             _text_block(d, (int(w * 0.05), int(h * 0.09)), screen, title_font, BRAND["saffron"], 12,
                         anchor_center=True, box_w=int(w * 0.9))
-        _paste_pose(img, pose_path, (int(w * 0.1), int(h * 0.42), int(w * 0.9), int(h * 0.97)))
+        _paste_pose(img, pose_path, (int(w * 0.1), int(h * 0.42), int(w * 0.9), int(h * 0.97)), bob)
         band_top = int(h * 0.28)
         d.rounded_rectangle([int(w * 0.04), band_top, int(w * 0.96), band_top + int(h * 0.15)],
                             radius=30, fill=(0, 0, 0, 170))
         _text_block(d, (int(w * 0.07), band_top + 25), caption, cap_font, BRAND["white"], 28,
                     anchor_center=True, box_w=int(w * 0.86))
     else:
-        _paste_pose(img, pose_path, (0, bar + 10, int(w * 0.42), h - int(h * 0.2)))
+        _paste_pose(img, pose_path, (0, bar + 10, int(w * 0.42), h - int(h * 0.2)), bob)
         if screen:
             _text_block(d, (int(w * 0.45), int(h * 0.2)), screen, title_font, BRAND["saffron"], 14)
         band_top = h - int(h * 0.22)
@@ -161,7 +163,7 @@ def thumbnail(cfg: Config, script: dict[str, Any], out: Path) -> Path:
     w, h = 1280, 720
     img = Image.new("RGBA", (w, h), BRAND["green"] + (255,))
     d = ImageDraw.Draw(img)
-    _paste_pose(img, cfg.poses_dir / "happy_pointing_closed.png", (0, 20, int(w * 0.45), h))
+    _paste_pose(img, resolve(cfg.poses_dir, "happy_pointing")[0], (0, 20, int(w * 0.45), h))
     text = clean_text(script.get("thumbnail_text") or script["title"])
     words = text.split()[:5]
     number = next((x for x in words if any(c.isdigit() for c in x)), "")
@@ -204,9 +206,11 @@ def _beat_segments(cfg: Config, size: tuple[int, int], beat: dict[str, Any], idx
     def frame(ci: int, mouth: bool) -> Path:
         key = (ci, mouth)
         if key not in cache:
-            pose = cfg.poses_dir / f"{beat['pose']}_{'open' if mouth else 'closed'}.png"
+            closed, opened = resolve(cfg.poses_dir, beat["pose"])
+            # Two mouth images -> real lip-sync; one image -> a small head-bob on speech
+            pose, bob = (opened, False) if (mouth and opened) else (closed, mouth and not opened)
             path = frames_dir / f"b{idx:02d}_c{ci:02d}_{'o' if mouth else 'c'}.png"
-            compose_frame(cfg, size, pose, chunks[ci], beat.get("screen", ""), source).save(path)
+            compose_frame(cfg, size, pose, chunks[ci], beat.get("screen", ""), source, bob).save(path)
             cache[key] = path
         return cache[key]
 

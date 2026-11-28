@@ -25,6 +25,8 @@ def main(argv: list[str] | None = None) -> int:
     poses = sub.add_parser("poses", help="create placeholder pose images for missing poses")
     poses.add_argument("--overwrite", action="store_true")
     sub.add_parser("status", help="show queue, runs and streak")
+    prep = sub.add_parser("prep-poses", help="cut out real pose art and copy it into the poses folder")
+    prep.add_argument("src", type=Path, help="folder with neutral.png, worried.jpg, ...")
     args = ap.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -41,6 +43,10 @@ def main(argv: list[str] | None = None) -> int:
     elif args.cmd == "poses":
         made = ensure_poses(cfg.poses_dir, overwrite=args.overwrite)
         print(f"created {len(made)} pose files in {cfg.poses_dir}")
+    elif args.cmd == "prep-poses":
+        from .poses import prepare
+        for p in prepare(args.src, cfg.poses_dir):
+            print(f"ready: {p}")
     elif args.cmd == "status":
         st = state.load(cfg.state_file)
         print(f"videos made: {st['videos_made']} | streak: {state.streak(st['approved_days'])} days")

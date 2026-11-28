@@ -88,6 +88,8 @@ def ensure_poses(poses_dir: Path, overwrite: bool = False) -> list[Path]:
     poses_dir.mkdir(parents=True, exist_ok=True)
     made = []
     for pose in POSES:
+        if (poses_dir / f"{pose}.png").exists():  # real single-image art is in place
+            continue
         for state in ("open", "closed"):
             path = poses_dir / f"{pose}_{state}.png"
             if path.exists() and not overwrite:

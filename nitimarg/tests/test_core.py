@@ -155,3 +155,42 @@ def test_render_sample_end_to_end(tmp_path, monkeypatch):
         assert dur == pytest.approx(expected, abs=0.3)
     thumb = render.thumbnail(cfg, SAMPLE, tmp_path / "t.jpg")
     assert thumb.stat().st_size > 10_000
+
+
+def test_cutout_keeps_inner_white_and_removes_border(tmp_path):
+    from PIL import Image, ImageDraw
+    from nitimarg.poses import cutout, prepare, resolve
+    img = Image.new("RGB", (200, 200), (255, 255, 255))
+    d = ImageDraw.Draw(img)
+    d.ellipse([40, 40, 160, 160], fill=(255, 153, 51), outline=(20, 20, 20), width=6)
+    d.rectangle([90, 90, 110, 110], fill=(255, 255, 255))  # white detail inside (eye, phone)
+    out = cutout(img)
+    assert out.getpixel((5, 5))[3] == 0
+    assert out.getpixel((100, 100))[3] == 255
+    src = tmp_path / "src"
+    src.mkdir()
+    img.save(src / "worried.jpg")
+    img.save(src / "random.jpg")
+    made = prepare(src, tmp_path / "poses")
+    assert [p.name for p in made] == ["worried.png"]
+    base, opened = resolve(tmp_path / "poses", "worried")
+    assert base.name == "worried.png" and opened is None
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg not installed")
+def test_render_with_single_image_poses_uses_bob(tmp_path, monkeypatch):
+    from PIL import Image
+    monkeypatch.setenv("NM_TTS", "preview")
+    cfg = Config()
+    cfg.poses_dir = tmp_path / "poses"
+    cfg.poses_dir.mkdir()
+    for pose in ("worried", "warning"):
+        Image.new("RGBA", (400, 500), (255, 153, 51, 255)).save(cfg.poses_dir / f"{pose}.png")
+    ensure_poses(cfg.poses_dir)
+    assert not (cfg.poses_dir / "worried_open.png").exists()  # real art not shadowed by placeholders
+    wav = tmp_path / "hook.wav"
+    tts.speak(cfg, "Paise mil gaye kya? Dekhiye.", wav)
+    res = render.render(cfg, SAMPLE, {"hook": wav}, tmp_path / "s.mp4", (360, 640), beats=["hook"], intro=False)
+    frames = list((tmp_path / "s_frames").glob("b00_*"))
+    assert {f.name[-5] for f in frames} == {"o", "c"}  # talking and resting frames both made
+    assert Path(res["path"]).exists()
